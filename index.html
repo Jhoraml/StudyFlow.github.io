@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow (Offline)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de Tailwind para Modo Oscuro y Colores -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // --- PALETA STUDYFLOW (Azul/Gris) ---
+                        primary: '#3A73B1', // Azul Principal (Botones)
+                        secondary: '#3B89BF', // Azul de Acento (Íconos, Highlights)
+                        darkBg: '#2D3A4F', // Azul Grisáceo Oscuro (Fondo Principal)
+                        darkCard: '#3A4B63' // Azul Grisáceo Medio (Tarjetas/Sidebar)
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Iconos (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .note-card { transition: all 0.2s ease-in-out; }
+        .note-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .hide-scroll::-webkit-scrollbar { width: 8px; }
+        .hide-scroll::-webkit-scrollbar-track { background: transparent; }
+        /* Ajuste del scrollbar con nuevos colores */
+        .hide-scroll::-webkit-scrollbar-thumb { background-color: #A9A9A9; border-radius: 20px; }
+        .dark .hide-scroll::-webkit-scrollbar-thumb { background-color: #555555; }
+    </style>
+</head>
+<body class="bg-[#EDEDED] text-gray-800 dark:bg-darkBg dark:text-gray-100 font-sans h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-20 md:w-64 bg-white dark:bg-darkCard border-r border-gray-200 dark:border-gray-700 flex flex-col justify-between transition-all duration-300 z-20">
+        <div>
+            <div class="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-200 dark:border-gray-700">
+                <i data-lucide="notebook" class="w-8 h-8 text-secondary"></i>
+                <!-- Nombre de la App: StudyFlow -->
+                <span class="hidden md:block ml-3 font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">StudyFlow</span>
+            </div>
+
+            <nav class="mt-6 flex flex-col gap-2 px-2">
+                <button onclick="app.navigate('notes')" id="nav-notes" class="flex items-center p-3 rounded-lg bg-primary/10 text-primary dark:text-white dark:bg-primary/20 transition-colors">
+                    <i data-lucide="sticky-note" class="w-6 h-6"></i>
+                    <span class="hidden md:block ml-3 font-medium">Mis Notas</span>
+                </button>
+                <button onclick="app.navigate('agenda')" id="nav-agenda" class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                    <i data-lucide="calendar" class="w-6 h-6"></i>
+                    <span class="hidden md:block ml-3 font-medium">Agenda</span>
+                </button>
+                <button onclick="app.navigate('settings')" id="nav-settings" class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                    <i data-lucide="settings" class="w-6 h-6"></i>
+                    <span class="hidden md:block ml-3 font-medium">Ajustes</span>
+                </button>
+                
+                <!-- La calculadora ahora está siempre disponible -->
+                <button onclick="app.toggleCalculator()" class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors mt-4 relative group">
+                    <i data-lucide="calculator" class="w-6 h-6 text-secondary"></i>
+                    <span class="hidden md:block ml-3 font-medium">Calculadora</span>
+                    <!-- Icono de candado eliminado -->
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="hidden md:block text-center text-xs text-gray-400 p-2">
+                Modo Nativo (Offline)
+            </div>
+            <div class="md:hidden w-full flex justify-center items-center p-3 rounded-lg text-gray-400">
+                <i data-lucide="cloud-off" class="w-6 h-6"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col relative h-full overflow-hidden bg-[#EDEDED] dark:bg-darkBg">
+        
+        <header class="h-16 bg-white dark:bg-darkCard border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 shrink-0">
+            <h1 id="page-title" class="text-2xl font-bold text-gray-800 dark:text-white">Mis Notas</h1>
+            <div class="flex items-center gap-4">
+                <button onclick="app.toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+                <button onclick="app.openModal('note')" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md transition-transform active:scale-95">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Nuevo</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="content-area" class="flex-1 overflow-y-auto p-6 hide-scroll relative">
+            <!-- Vistas -->
+        </div>
+
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl z-[70] hidden transition-all duration-300 flex items-center gap-3">
+        <i data-lucide="info" class="w-5 h-5" id="toast-icon"></i>
+        <span id="toast-message" class="font-medium">Mensaje</span>
+    </div>
+
+    <!-- MODALES -->
+
+    <!-- Modal Crear/Editar Nota -->
+    <div id="modal-note" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-2xl shadow-2xl p-6 transform transition-all scale-100 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold dark:text-white">Nueva Nota</h3>
+                <button onclick="app.closeModal('note')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <input type="text" id="note-title" placeholder="Título de la nota" class="w-full mb-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+            
+            <!-- Barra de herramientas de IA eliminada -->
+            
+            <textarea id="note-body" class="w-full flex-1 min-h-[150px] p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary resize-none mb-4" placeholder="Escribe aquí..."></textarea>
+            
+            <!-- Opción de Imagen eliminada -->
+
+            <div class="flex justify-end items-center">
+                <button onclick="app.saveNote()" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition font-medium shadow-lg hover:shadow-primary/30">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Agenda -->
+    <div id="modal-agenda" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white dark:bg-darkCard w-full max-w-md rounded-2xl shadow-2xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold dark:text-white">Nuevo Evento</h3>
+                <button onclick="app.closeModal('agenda')" class="text-gray-500"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <input type="text" id="event-title" placeholder="Nombre del evento" class="w-full mb-4 p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            <input type="datetime-local" id="event-date" class="w-full mb-4 p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            <button onclick="app.saveEvent()" class="w-full bg-secondary text-white px-6 py-2 rounded-lg hover:bg-secondary/90 transition font-medium">Agendar</button>
+        </div>
+    </div>
+
+    <!-- Modal Calculadora -->
+    <div id="modal-calculator" class="fixed bottom-10 right-10 bg-white dark:bg-darkCard rounded-2xl shadow-2xl z-40 hidden w-64 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="bg-gray-100 dark:bg-gray-800 p-3 flex justify-between items-center cursor-move">
+            <span class="font-bold text-sm dark:text-white flex items-center gap-2"><i data-lucide="calculator" class="w-3 h-3"></i> Calculadora</span>
+            <button onclick="app.toggleCalculator()" class="text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="p-4">
+            <input type="text" id="calc-display" readonly class="w-full mb-3 text-right text-2xl font-mono bg-transparent dark:text-white border-b border-gray-300 outline-none" value="0">
+            <div class="grid grid-cols-4 gap-2">
+                <button onclick="calc.clear()" class="col-span-3 bg-red-100 text-red-600 p-2 rounded hover:bg-red-200 font-bold">C</button>
+                <button onclick="calc.op('/')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">÷</button>
+                <button onclick="calc.add(7)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">7</button>
+                <button onclick="calc.add(8)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">8</button>
+                <button onclick="calc.add(9)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">9</button>
+                <button onclick="calc.op('*')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">×</button>
+                <button onclick="calc.add(4)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">4</button>
+                <button onclick="calc.add(5)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">5</button>
+                <button onclick="calc.add(6)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">6</button>
+                <button onclick="calc.op('-')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">-</button>
+                <button onclick="calc.add(1)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">1</button>
+                <button onclick="calc.add(2)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">2</button>
+                <button onclick="calc.add(3)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">3</button>
+                <button onclick="calc.op('+')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">+</button>
+                <button onclick="calc.add(0)" class="col-span-2 bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">0</button>
+                <button onclick="calc.add('.')" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded">.</button>
+                <button onclick="calc.eq()" class="bg-primary text-white p-2 rounded shadow">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        lucide.createIcons();
+
+        // ------------------ CALCULADORA LÓGICA ------------------
+        const calc = {
+            current: '0', prev: null, operation: null,
+            add(n) { 
+                if (this.current === '0' && n !== '.') this.current = ''; 
+                this.current += n.toString(); 
+                this.update(); 
+            },
+            op(op) { 
+                this.prev = this.current; 
+                this.current = '0'; 
+                this.operation = op; 
+            },
+            eq() {
+                if (!this.prev || !this.operation) return;
+                const prev = parseFloat(this.prev), curr = parseFloat(this.current);
+                let res = 0;
+                switch(this.operation) {
+                    case '+': res = prev + curr; break; 
+                    case '-': res = prev - curr; break;
+                    case '*': res = prev * curr; break; 
+                    case '/': 
+                        if (curr === 0) {
+                            app.showToast("¡No se puede dividir por cero!", "error");
+                            this.clear();
+                            return;
+                        }
+                        res = prev / curr; 
+                        break;
+                }
+                this.current = res.toString(); 
+                this.operation = null; 
+                this.prev = null; 
+                this.update();
+            },
+            clear() { 
+                this.current = '0'; 
+                this.prev = null; 
+                this.operation = null; 
+                this.update(); 
+            },
+            update() { 
+                document.getElementById('calc-display').value = this.current; 
+            }
+        };
+
+        // ------------------ LÓGICA PRINCIPAL DE LA APLICACIÓN ------------------
+        const app = {
+            data: {
+                notes: JSON.parse(localStorage.getItem('notes')) || [],
+                events: JSON.parse(localStorage.getItem('events')) || [],
+                settings: JSON.parse(localStorage.getItem('settings')) || { theme: 'light', fontSize: 'normal' },
+                isPremium: localStorage.getItem('isPremium') === 'true' || false, // Estado Premium
+            },
+            currentView: 'notes',
+
+            init() {
+                this.applyTheme();
+                this.render();
+            },
+
+            // --- UI HELPERS ---
+            showToast(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                const msg = document.getElementById('toast-message');
+                const icon = document.getElementById('toast-icon');
+
+                msg.innerText = message;
+                toast.classList.remove('hidden', 'bg-red-500', 'bg-green-500'); // Limpia clases previas
+                toast.classList.add('bg-gray-800', 'dark:bg-white'); // Color por defecto
+                
+                if (type === 'error') {
+                    icon.setAttribute('data-lucide', 'alert-circle');
+                    toast.classList.remove('bg-gray-800');
+                    toast.classList.add('bg-red-500');
+                } else if (type === 'success') {
+                    icon.setAttribute('data-lucide', 'check-circle');
+                    toast.classList.remove('bg-gray-800');
+                    toast.classList.add('bg-green-500');
+                } else {
+                    icon.setAttribute('data-lucide', 'info');
+                }
+                lucide.createIcons();
+
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            },
+
+            // --- NAVEGACIÓN Y RENDER ---
+            navigate(view) {
+                this.currentView = view;
+                // Actualiza la barra lateral para resaltar la vista actual
+                document.querySelectorAll('nav button').forEach(btn => {
+                    btn.classList.remove('bg-primary/10', 'text-primary', 'dark:bg-primary/20', 'dark:text-white');
+                    btn.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                });
+                const navId = `nav-${view}`;
+                const btn = document.getElementById(navId);
+                if(btn) {
+                    btn.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                    btn.classList.add('bg-primary/10', 'text-primary', 'dark:text-white', 'dark:bg-primary/20');
+                }
+
+                const titles = { notes: 'Mis Notas', agenda: 'Agenda Personal', settings: 'Ajustes' };
+                document.getElementById('page-title').innerText = titles[view];
+                
+                this.render();
+            },
+
+            render() {
+                const container = document.getElementById('content-area');
+                container.innerHTML = '';
+                if (this.currentView === 'notes') this.renderNotes(container);
+                else if (this.currentView === 'agenda') this.renderAgenda(container);
+                else if (this.currentView === 'settings') this.renderSettings(container);
+                lucide.createIcons();
+            },
+
+            renderNotes(container) {
+                if (this.data.notes.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                            <i data-lucide="notebook" class="w-16 h-16 mb-4 opacity-50"></i>
+                            <p>No tienes notas. ¡Crea una!</p>
+                        </div>`;
+                    return;
+                }
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
+                const sortedNotes = [...this.data.notes].reverse();
+
+                sortedNotes.forEach((note) => {
+                    const fontSizeClass = this.data.settings.fontSize === 'large' ? 'text-lg' : 'text-base';
+                    // La imagen ya no es una opción, se elimina el HTML de la imagen
+                    
+                    const card = document.createElement('div');
+                    card.className = `note-card bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden group h-full`;
+                    card.innerHTML = `
+                        <h3 class="font-bold text-lg mb-2 dark:text-gray-100 line-clamp-1">${note.title}</h3>
+                        <p class="${fontSizeClass} text-gray-600 dark:text-gray-400 flex-1 whitespace-pre-line line-clamp-4 mb-4">${note.body}</p>
+                        <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-xs text-gray-400">${new Date(note.date).toLocaleDateString()}</span>
+                            <button onclick="app.deleteNote(${note.id})" class="text-red-400 hover:text-red-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
+            },
+
+            renderAgenda(container) {
+                if (this.data.events.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                            <i data-lucide="calendar-clock" class="w-16 h-16 mb-4 opacity-50"></i>
+                            <p>Agenda vacía. ¡Añade un evento!</p>
+                            <button onclick="app.openModal('agenda')" class="mt-4 text-primary font-bold">Añadir Evento</button>
+                        </div>`;
+                    return;
+                }
+                const list = document.createElement('div');
+                list.className = 'max-w-3xl mx-auto space-y-4';
+                const sortedEvents = this.data.events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                sortedEvents.forEach(evt => {
+                    const dateObj = new Date(evt.date);
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border-l-4 border-secondary';
+                    item.innerHTML = `
+                        <div class="mr-4 text-center min-w-[60px]">
+                            <div class="text-xs font-bold text-gray-400 uppercase">${dateObj.toLocaleDateString('es-ES', { month: 'short' })}</div>
+                            <div class="text-2xl font-bold text-gray-800 dark:text-white">${dateObj.getDate()}</div>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg dark:text-white">${evt.title}</h4>
+                            <p class="text-sm text-gray-500">${dateObj.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</p>
+                        </div>
+                        <button onclick="app.deleteEvent(${evt.id})" class="text-gray-400 hover:text-red-500"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
+                    `;
+                    list.appendChild(item);
+                });
+                container.appendChild(list);
+            },
+
+            renderSettings(container) {
+                container.innerHTML = `
+                    <div class="max-w-2xl mx-auto bg-white dark:bg-darkCard rounded-xl shadow p-8">
+                        <h2 class="text-xl font-bold mb-6 dark:text-white">Preferencias</h2>
+                        
+                        <!-- Tema -->
+                        <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-700">
+                            <div><p class="font-medium dark:text-white">Modo Oscuro</p><p class="text-sm text-gray-500">Alternar tema de la aplicación</p></div>
+                            <button onclick="app.toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-primary relative transition-colors">
+                                <span class="absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow transform transition-transform ${this.data.settings.theme === 'dark' ? 'translate-x-6' : ''}"></span>
+                            </button>
+                        </div>
+                        
+                        <!-- Tamaño de Fuente -->
+                        <div class="py-4 border-b border-gray-100 dark:border-gray-700">
+                            <p class="font-medium dark:text-white mb-2">Tamaño de Fuente</p>
+                            <div class="flex gap-4">
+                                <button onclick="app.setFontSize('normal')" class="px-4 py-2 rounded border ${this.data.settings.fontSize === 'normal' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 dark:text-gray-400'}">Normal</button>
+                                <button onclick="app.setFontSize('large')" class="px-4 py-2 rounded border ${this.data.settings.fontSize === 'large' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 dark:text-gray-400'}">Grande</button>
+                            </div>
+                        </div>
+
+                        <!-- Estado Premium (Reincorporado) -->
+                        <div class="py-4 border-b border-gray-100 dark:border-gray-700">
+                            <p class="font-medium dark:text-white mb-2">Estado Premium (IA)</p>
+                            ${this.data.isPremium ? `
+                                <div class="bg-primary/20 dark:bg-primary/40 p-4 rounded-lg flex justify-between items-center text-primary font-medium">
+                                    <i data-lucide="gem" class="w-5 h-5 mr-2"></i>
+                                    Prueba Activa. (Funciones AI deshabilitadas en modo Offline)
+                                </div>
+                            ` : `
+                                <div class="bg-secondary/10 dark:bg-secondary/30 p-4 rounded-lg flex justify-between items-center text-secondary font-medium">
+                                    <p>Activa tu prueba gratuita de funciones Premium.</p>
+                                    <button onclick="app.activateTrial()" class="bg-primary text-white px-3 py-1 text-sm rounded-lg hover:bg-primary/90 transition">Activar</button>
+                                </div>
+                            `}
+                        </div>
+                        
+                        <!-- Estado de Conexión -->
+                        <div class="py-4">
+                            <p class="font-medium dark:text-white mb-2">Estado de Conexión</p>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg flex justify-between items-center text-green-600 dark:text-green-300 font-medium">
+                                <i data-lucide="cloud-off" class="w-5 h-5 mr-2"></i>
+                                Aplicación 100% Offline
+                            </div>
+                        </div>
+                        <div class="mt-8 text-center text-xs text-gray-400">Datos guardados localmente en su navegador.</div>
+                    </div>
+                `;
+            },
+
+            // --- DATA LOGIC ---
+            saveNote() {
+                const title = document.getElementById('note-title').value;
+                const body = document.getElementById('note-body').value;
+
+                if (!title && !body) {
+                    this.showToast('La nota no puede estar vacía.', 'error');
+                    return;
+                }
+
+                const newNote = { id: Date.now(), title: title || 'Sin Título', body: body, date: new Date() };
+                this.data.notes.push(newNote);
+                this.saveToStorage();
+                this.closeModal('note');
+                document.getElementById('note-title').value = '';
+                document.getElementById('note-body').value = '';
+                this.showToast('Nota guardada con éxito', 'success');
+                this.render();
+            },
+
+            deleteNote(id) {
+                // Usamos un modal UI simple en lugar de confirm()
+                const confirmed = prompt('Escribe "BORRAR" para confirmar que quieres eliminar la nota.').toUpperCase() === 'BORRAR';
+                if(confirmed) {
+                    this.data.notes = this.data.notes.filter(n => n.id !== id);
+                    this.saveToStorage();
+                    this.showToast('Nota eliminada', 'success');
+                    this.render();
+                } else {
+                    this.showToast('Operación cancelada', 'info');
+                }
+            },
+            
+            saveEvent() {
+                const title = document.getElementById('event-title').value;
+                const date = document.getElementById('event-date').value;
+                if (!title || !date) return this.showToast('Completa los campos de título y fecha', 'error');
+                this.data.events.push({ id: Date.now(), title, date });
+                this.saveToStorage();
+                this.closeModal('agenda');
+                this.showToast('Evento agendado', 'success');
+                this.navigate('agenda');
+            },
+
+            deleteEvent(id) {
+                const confirmed = prompt('Escribe "BORRAR" para confirmar que quieres eliminar el evento.').toUpperCase() === 'BORRAR';
+                if(confirmed) {
+                    this.data.events = this.data.events.filter(e => e.id !== id);
+                    this.saveToStorage();
+                    this.showToast('Evento eliminado', 'success');
+                    this.render();
+                } else {
+                    this.showToast('Operación cancelada', 'info');
+                }
+            },
+
+            // --- SYSTEM ---
+            toggleCalculator() {
+                document.getElementById('modal-calculator').classList.toggle('hidden');
+                // Se asegura de que la calculadora esté visible para su uso
+                if (!document.getElementById('modal-calculator').classList.contains('hidden')) {
+                    calc.update(); // Muestra el valor actual al abrir
+                }
+            },
+            toggleTheme() {
+                this.data.settings.theme = this.data.settings.theme === 'light' ? 'dark' : 'light';
+                this.applyTheme();
+                localStorage.setItem('settings', JSON.stringify(this.data.settings));
+                if(this.currentView === 'settings') this.render();
+            },
+            applyTheme() {
+                const html = document.documentElement;
+                const icon = document.getElementById('theme-icon');
+                if (this.data.settings.theme === 'dark') {
+                    html.classList.add('dark');
+                    if(icon) icon.setAttribute('data-lucide', 'sun');
+                } else {
+                    html.classList.remove('dark');
+                    if(icon) icon.setAttribute('data-lucide', 'moon');
+                }
+                lucide.createIcons();
+            },
+            setFontSize(size) {
+                this.data.settings.fontSize = size;
+                localStorage.setItem('settings', JSON.stringify(this.data.settings));
+                this.render();
+            },
+            activateTrial() {
+                this.data.isPremium = true;
+                localStorage.setItem('isPremium', 'true');
+                this.showToast('¡Prueba Premium activada! (Funciones de IA deshabilitadas en modo Offline)', 'success');
+                this.render(); // Re-render settings view
+            },
+            saveToStorage() {
+                localStorage.setItem('notes', JSON.stringify(this.data.notes));
+                localStorage.setItem('events', JSON.stringify(this.data.events));
+            },
+            openModal(type) { document.getElementById(`modal-${type}`).classList.remove('hidden'); },
+            closeModal(type) { document.getElementById(`modal-${type}`).classList.add('hidden'); }
+        };
+
+        app.init();
+    </script>
+</body>
+</html>
