@@ -17,7 +17,8 @@
                         primary: '#3A73B1', // Azul Principal (Botones)
                         secondary: '#3B89BF', // Azul de Acento (Íconos, Highlights)
                         darkBg: '#2D3A4F', // Azul Grisáceo Oscuro (Fondo Principal)
-                        darkCard: '#3A4B63' // Azul Grisáceo Medio (Tarjetas/Sidebar)
+                        darkCard: '#3A4B63', // Azul Grisáceo Medio (Tarjetas/Sidebar)
+                        pomodoro: '#E06C75' // Rojo suave para pomodoro
                     }
                 }
             }
@@ -34,38 +35,65 @@
         /* Ajuste del scrollbar con nuevos colores */
         .hide-scroll::-webkit-scrollbar-thumb { background-color: #A9A9A9; border-radius: 20px; }
         .dark .hide-scroll::-webkit-scrollbar-thumb { background-color: #555555; }
+        
+        /* Animación para el reloj */
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .colon-blink { animation: pulse-soft 1s infinite; }
     </style>
 </head>
 <body class="bg-[#EDEDED] text-gray-800 dark:bg-darkBg dark:text-gray-100 font-sans h-screen flex overflow-hidden">
 
     <!-- SIDEBAR -->
-    <aside class="w-20 md:w-64 bg-white dark:bg-darkCard border-r border-gray-200 dark:border-gray-700 flex flex-col justify-between transition-all duration-300 z-20">
+    <aside class="w-16 md:w-64 bg-white dark:bg-darkCard border-r border-gray-200 dark:border-gray-700 flex flex-col justify-between transition-all duration-300 z-20 shrink-0">
         <div>
-            <div class="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-200 dark:border-gray-700">
-                <i data-lucide="notebook" class="w-8 h-8 text-secondary"></i>
+            <!-- LOGO AREA MODIFICADA -->
+            <div class="h-20 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-200 dark:border-gray-700">
+                <!-- SVG Custom Logo basado en la imagen subida -->
+                <svg class="w-10 h-10 shrink-0 rounded-xl shadow-sm transition-transform hover:scale-105" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#3A73B1"/>
+                            <stop offset="1" stop-color="#2D3A4F"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Fondo Azul redondeado -->
+                    <rect width="100" height="100" rx="25" fill="url(#logoGradient)"/>
+                    <!-- Forma circular blanca (Abstracta) -->
+                    <circle cx="50" cy="45" r="25" stroke="white" stroke-width="8"/>
+                    <path d="M25 75 Q 50 85 75 75" stroke="white" stroke-width="0" fill="white" /> 
+                    <ellipse cx="50" cy="78" rx="28" ry="8" fill="white" />
+                </svg>
+                
                 <!-- Nombre de la App: StudyFlow -->
                 <span class="hidden md:block ml-3 font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">StudyFlow</span>
             </div>
 
             <nav class="mt-6 flex flex-col gap-2 px-2">
-                <button onclick="app.navigate('notes')" id="nav-notes" class="flex items-center p-3 rounded-lg bg-primary/10 text-primary dark:text-white dark:bg-primary/20 transition-colors">
+                <button onclick="app.navigate('notes')" id="nav-notes" class="flex items-center justify-center md:justify-start p-3 rounded-lg bg-primary/10 text-primary dark:text-white dark:bg-primary/20 transition-colors">
                     <i data-lucide="sticky-note" class="w-6 h-6"></i>
                     <span class="hidden md:block ml-3 font-medium">Mis Notas</span>
                 </button>
-                <button onclick="app.navigate('agenda')" id="nav-agenda" class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                <button onclick="app.navigate('agenda')" id="nav-agenda" class="flex items-center justify-center md:justify-start p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                     <i data-lucide="calendar" class="w-6 h-6"></i>
                     <span class="hidden md:block ml-3 font-medium">Agenda</span>
                 </button>
-                <button onclick="app.navigate('settings')" id="nav-settings" class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                <!-- Nueva Sección Reloj -->
+                <button onclick="app.navigate('clock')" id="nav-clock" class="flex items-center justify-center md:justify-start p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                    <span class="hidden md:block ml-3 font-medium">Reloj & Foco</span>
+                </button>
+                <button onclick="app.navigate('settings')" id="nav-settings" class="flex items-center justify-center md:justify-start p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                     <i data-lucide="settings" class="w-6 h-6"></i>
                     <span class="hidden md:block ml-3 font-medium">Ajustes</span>
                 </button>
                 
                 <!-- La calculadora ahora está siempre disponible -->
-                <button onclick="app.toggleCalculator()" class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors mt-4 relative group">
+                <button onclick="app.toggleCalculator()" class="flex items-center justify-center md:justify-start p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors mt-4 relative group">
                     <i data-lucide="calculator" class="w-6 h-6 text-secondary"></i>
                     <span class="hidden md:block ml-3 font-medium">Calculadora</span>
-                    <!-- Icono de candado eliminado -->
                 </button>
             </nav>
         </div>
@@ -84,12 +112,13 @@
     <main class="flex-1 flex flex-col relative h-full overflow-hidden bg-[#EDEDED] dark:bg-darkBg">
         
         <header class="h-16 bg-white dark:bg-darkCard border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 shrink-0">
-            <h1 id="page-title" class="text-2xl font-bold text-gray-800 dark:text-white">Mis Notas</h1>
-            <div class="flex items-center gap-4">
+            <h1 id="page-title" class="text-xl md:text-2xl font-bold text-gray-800 dark:text-white truncate mr-4">Mis Notas</h1>
+            <div class="flex items-center gap-4 shrink-0">
                 <button onclick="app.toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                     <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
                 </button>
-                <button onclick="app.openModal('note')" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md transition-transform active:scale-95">
+                <!-- El botón Nuevo es dinámico según la vista -->
+                <button id="btn-new-main" onclick="app.handleNewButton()" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md transition-transform active:scale-95">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Nuevo</span>
                 </button>
@@ -103,16 +132,16 @@
     </main>
 
     <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl z-[70] hidden transition-all duration-300 flex items-center gap-3">
-        <i data-lucide="info" class="w-5 h-5" id="toast-icon"></i>
-        <span id="toast-message" class="font-medium">Mensaje</span>
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl z-[70] hidden transition-all duration-300 flex items-center gap-3 w-max max-w-[90%]">
+        <i data-lucide="info" class="w-5 h-5 flex-shrink-0" id="toast-icon"></i>
+        <span id="toast-message" class="font-medium truncate">Mensaje</span>
     </div>
 
     <!-- MODALES -->
 
     <!-- Modal Crear/Editar Nota -->
-    <div id="modal-note" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-2xl shadow-2xl p-6 transform transition-all scale-100 flex flex-col max-h-[90vh]">
+    <div id="modal-note" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-2xl shadow-2xl p-6 transform transition-all scale-100 flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold dark:text-white">Nueva Nota</h3>
                 <button onclick="app.closeModal('note')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
@@ -122,12 +151,8 @@
             
             <input type="text" id="note-title" placeholder="Título de la nota" class="w-full mb-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
             
-            <!-- Barra de herramientas de IA eliminada -->
-            
             <textarea id="note-body" class="w-full flex-1 min-h-[150px] p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary resize-none mb-4" placeholder="Escribe aquí..."></textarea>
             
-            <!-- Opción de Imagen eliminada -->
-
             <div class="flex justify-end items-center">
                 <button onclick="app.saveNote()" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition font-medium shadow-lg hover:shadow-primary/30">Guardar</button>
             </div>
@@ -135,44 +160,59 @@
     </div>
 
     <!-- Modal Agenda -->
-    <div id="modal-agenda" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+    <div id="modal-agenda" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-darkCard w-full max-w-md rounded-2xl shadow-2xl p-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold dark:text-white">Nuevo Evento</h3>
-                <button onclick="app.closeModal('agenda')" class="text-gray-500"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <button onclick="app.closeModal('agenda')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
-            <input type="text" id="event-title" placeholder="Nombre del evento" class="w-full mb-4 p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-            <input type="datetime-local" id="event-date" class="w-full mb-4 p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            <input type="text" id="event-title" placeholder="Nombre del evento" class="w-full mb-4 p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-secondary">
+            <input type="datetime-local" id="event-date" class="w-full mb-4 p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-secondary">
             <button onclick="app.saveEvent()" class="w-full bg-secondary text-white px-6 py-2 rounded-lg hover:bg-secondary/90 transition font-medium">Agendar</button>
         </div>
     </div>
 
     <!-- Modal Calculadora -->
-    <div id="modal-calculator" class="fixed bottom-10 right-10 bg-white dark:bg-darkCard rounded-2xl shadow-2xl z-40 hidden w-64 overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div class="bg-gray-100 dark:bg-gray-800 p-3 flex justify-between items-center cursor-move">
+    <div id="modal-calculator" class="fixed bottom-20 right-4 sm:bottom-10 sm:right-10 bg-white dark:bg-darkCard rounded-2xl shadow-2xl z-40 hidden w-64 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="bg-gray-100 dark:bg-gray-800 p-3 flex justify-between items-center cursor-move select-none" id="calc-header">
             <span class="font-bold text-sm dark:text-white flex items-center gap-2"><i data-lucide="calculator" class="w-3 h-3"></i> Calculadora</span>
-            <button onclick="app.toggleCalculator()" class="text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <button onclick="app.toggleCalculator()" class="text-red-500 hover:bg-red-100 rounded p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
         <div class="p-4">
             <input type="text" id="calc-display" readonly class="w-full mb-3 text-right text-2xl font-mono bg-transparent dark:text-white border-b border-gray-300 outline-none" value="0">
             <div class="grid grid-cols-4 gap-2">
                 <button onclick="calc.clear()" class="col-span-3 bg-red-100 text-red-600 p-2 rounded hover:bg-red-200 font-bold">C</button>
-                <button onclick="calc.op('/')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">÷</button>
-                <button onclick="calc.add(7)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">7</button>
-                <button onclick="calc.add(8)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">8</button>
-                <button onclick="calc.add(9)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">9</button>
-                <button onclick="calc.op('*')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">×</button>
-                <button onclick="calc.add(4)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">4</button>
-                <button onclick="calc.add(5)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">5</button>
-                <button onclick="calc.add(6)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">6</button>
-                <button onclick="calc.op('-')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">-</button>
-                <button onclick="calc.add(1)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">1</button>
-                <button onclick="calc.add(2)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">2</button>
-                <button onclick="calc.add(3)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">3</button>
-                <button onclick="calc.op('+')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded">+</button>
-                <button onclick="calc.add(0)" class="col-span-2 bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100">0</button>
-                <button onclick="calc.add('.')" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded">.</button>
-                <button onclick="calc.eq()" class="bg-primary text-white p-2 rounded shadow">=</button>
+                <button onclick="calc.op('/')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600">÷</button>
+                <button onclick="calc.add(7)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">7</button>
+                <button onclick="calc.add(8)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">8</button>
+                <button onclick="calc.add(9)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">9</button>
+                <button onclick="calc.op('*')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600">×</button>
+                <button onclick="calc.add(4)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">4</button>
+                <button onclick="calc.add(5)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">5</button>
+                <button onclick="calc.add(6)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">6</button>
+                <button onclick="calc.op('-')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600">-</button>
+                <button onclick="calc.add(1)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">1</button>
+                <button onclick="calc.add(2)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">2</button>
+                <button onclick="calc.add(3)" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">3</button>
+                <button onclick="calc.op('+')" class="bg-gray-200 dark:bg-gray-700 dark:text-white p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600">+</button>
+                <button onclick="calc.add(0)" class="col-span-2 bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">0</button>
+                <button onclick="calc.add('.')" class="bg-gray-50 dark:bg-gray-600 dark:text-white p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-500">.</button>
+                <button onclick="calc.eq()" class="bg-primary text-white p-2 rounded shadow hover:bg-primary/90">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación de Borrado -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-darkCard w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center transform transition-all scale-100">
+            <div class="mx-auto w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4 text-red-600 dark:text-red-400">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-bold dark:text-white mb-2">¿Estás seguro?</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">Esta acción eliminará el elemento permanentemente.</p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="app.closeModal('confirm')" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">Cancelar</button>
+                <button onclick="app.executeDelete()" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition shadow-lg">Eliminar</button>
             </div>
         </div>
     </div>
@@ -211,7 +251,7 @@
                         res = prev / curr; 
                         break;
                 }
-                this.current = res.toString(); 
+                this.current = parseFloat(res.toFixed(8)).toString(); 
                 this.operation = null; 
                 this.prev = null; 
                 this.update();
@@ -223,7 +263,8 @@
                 this.update(); 
             },
             update() { 
-                document.getElementById('calc-display').value = this.current; 
+                const display = document.getElementById('calc-display');
+                if(display) display.value = this.current; 
             }
         };
 
@@ -233,9 +274,17 @@
                 notes: JSON.parse(localStorage.getItem('notes')) || [],
                 events: JSON.parse(localStorage.getItem('events')) || [],
                 settings: JSON.parse(localStorage.getItem('settings')) || { theme: 'light', fontSize: 'normal' },
-                isPremium: localStorage.getItem('isPremium') === 'true' || false, // Estado Premium
+                isPremium: localStorage.getItem('isPremium') === 'true' || false, 
             },
             currentView: 'notes',
+            pendingDelete: null,
+            activeIntervals: [], // Para limpiar intervalos al cambiar de vista
+            
+            // Estado para el Cronómetro y Pomodoro (en memoria, se resetea al recargar página)
+            clockState: {
+                stopwatch: { time: 0, running: false, interval: null },
+                pomodoro: { time: 25 * 60, running: false, interval: null, initial: 25 * 60 }
+            },
 
             init() {
                 this.applyTheme();
@@ -249,21 +298,22 @@
                 const icon = document.getElementById('toast-icon');
 
                 msg.innerText = message;
-                toast.classList.remove('hidden', 'bg-red-500', 'bg-green-500'); // Limpia clases previas
-                toast.classList.add('bg-gray-800', 'dark:bg-white'); // Color por defecto
+                toast.classList.remove('hidden', 'bg-red-500', 'bg-green-500'); 
+                toast.classList.add('bg-gray-800', 'dark:bg-white'); 
                 
                 if (type === 'error') {
                     icon.setAttribute('data-lucide', 'alert-circle');
-                    toast.classList.remove('bg-gray-800');
+                    toast.classList.remove('bg-gray-800', 'dark:bg-white');
                     toast.classList.add('bg-red-500');
                 } else if (type === 'success') {
                     icon.setAttribute('data-lucide', 'check-circle');
-                    toast.classList.remove('bg-gray-800');
+                    toast.classList.remove('bg-gray-800', 'dark:bg-white');
                     toast.classList.add('bg-green-500');
                 } else {
                     icon.setAttribute('data-lucide', 'info');
                 }
                 lucide.createIcons();
+                toast.classList.remove('hidden');
 
                 setTimeout(() => {
                     toast.classList.add('hidden');
@@ -271,12 +321,21 @@
             },
 
             // --- NAVEGACIÓN Y RENDER ---
+            clearIntervals() {
+                this.activeIntervals.forEach(i => clearInterval(i));
+                this.activeIntervals = [];
+            },
+
             navigate(view) {
                 this.currentView = view;
-                // Actualiza la barra lateral para resaltar la vista actual
+                this.clearIntervals(); // Limpiar intervalos de la vista anterior (ej. reloj)
+                
+                // Actualiza la barra lateral
                 document.querySelectorAll('nav button').forEach(btn => {
-                    btn.classList.remove('bg-primary/10', 'text-primary', 'dark:bg-primary/20', 'dark:text-white');
-                    btn.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                    if(btn.id.startsWith('nav-')) {
+                        btn.classList.remove('bg-primary/10', 'text-primary', 'dark:bg-primary/20', 'dark:text-white');
+                        btn.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                    }
                 });
                 const navId = `nav-${view}`;
                 const btn = document.getElementById(navId);
@@ -285,10 +344,23 @@
                     btn.classList.add('bg-primary/10', 'text-primary', 'dark:text-white', 'dark:bg-primary/20');
                 }
 
-                const titles = { notes: 'Mis Notas', agenda: 'Agenda Personal', settings: 'Ajustes' };
+                const titles = { notes: 'Mis Notas', agenda: 'Agenda Personal', settings: 'Ajustes', clock: 'Reloj & Foco' };
                 document.getElementById('page-title').innerText = titles[view];
                 
+                // Manejo del botón "Nuevo"
+                const btnNew = document.getElementById('btn-new-main');
+                if (view === 'settings' || view === 'clock') {
+                    btnNew.classList.add('hidden');
+                } else {
+                    btnNew.classList.remove('hidden');
+                }
+
                 this.render();
+            },
+            
+            handleNewButton() {
+                if(this.currentView === 'notes') this.openModal('note');
+                if(this.currentView === 'agenda') this.openModal('agenda');
             },
 
             render() {
@@ -297,8 +369,11 @@
                 if (this.currentView === 'notes') this.renderNotes(container);
                 else if (this.currentView === 'agenda') this.renderAgenda(container);
                 else if (this.currentView === 'settings') this.renderSettings(container);
+                else if (this.currentView === 'clock') this.renderClock(container);
                 lucide.createIcons();
             },
+
+            // --- VISTAS ESPECÍFICAS ---
 
             renderNotes(container) {
                 if (this.data.notes.length === 0) {
@@ -311,21 +386,22 @@
                 }
 
                 const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-20'; 
                 const sortedNotes = [...this.data.notes].reverse();
 
                 sortedNotes.forEach((note) => {
                     const fontSizeClass = this.data.settings.fontSize === 'large' ? 'text-lg' : 'text-base';
-                    // La imagen ya no es una opción, se elimina el HTML de la imagen
-                    
                     const card = document.createElement('div');
-                    card.className = `note-card bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden group h-full`;
+                    card.className = `note-card bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden group h-64`;
                     card.innerHTML = `
                         <h3 class="font-bold text-lg mb-2 dark:text-gray-100 line-clamp-1">${note.title}</h3>
-                        <p class="${fontSizeClass} text-gray-600 dark:text-gray-400 flex-1 whitespace-pre-line line-clamp-4 mb-4">${note.body}</p>
+                        <div class="flex-1 overflow-hidden relative">
+                            <p class="${fontSizeClass} text-gray-600 dark:text-gray-400 whitespace-pre-line line-clamp-6 mb-4">${note.body}</p>
+                            <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white dark:from-darkCard to-transparent"></div>
+                        </div>
                         <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
                             <span class="text-xs text-gray-400">${new Date(note.date).toLocaleDateString()}</span>
-                            <button onclick="app.deleteNote(${note.id})" class="text-red-400 hover:text-red-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="app.deleteNote(${note.id})" class="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -334,73 +410,222 @@
             },
 
             renderAgenda(container) {
-                if (this.data.events.length === 0) {
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                            <i data-lucide="calendar-clock" class="w-16 h-16 mb-4 opacity-50"></i>
-                            <p>Agenda vacía. ¡Añade un evento!</p>
-                            <button onclick="app.openModal('agenda')" class="mt-4 text-primary font-bold">Añadir Evento</button>
-                        </div>`;
-                    return;
-                }
-                const list = document.createElement('div');
-                list.className = 'max-w-3xl mx-auto space-y-4';
-                const sortedEvents = this.data.events.sort((a, b) => new Date(a.date) - new Date(b.date));
+                const wrapper = document.createElement('div');
+                wrapper.className = 'max-w-3xl mx-auto pb-20 space-y-8';
 
-                sortedEvents.forEach(evt => {
-                    const dateObj = new Date(evt.date);
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border-l-4 border-secondary';
-                    item.innerHTML = `
-                        <div class="mr-4 text-center min-w-[60px]">
-                            <div class="text-xs font-bold text-gray-400 uppercase">${dateObj.toLocaleDateString('es-ES', { month: 'short' })}</div>
-                            <div class="text-2xl font-bold text-gray-800 dark:text-white">${dateObj.getDate()}</div>
+                // 1. Calendario
+                const calendarSection = document.createElement('div');
+                calendarSection.className = 'bg-white dark:bg-darkCard rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6';
+                
+                const now = new Date();
+                const monthName = now.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+                const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                const firstDayIndex = new Date(now.getFullYear(), now.getMonth(), 1).getDay(); // 0 = Domingo
+                // Ajustar para que Lunes sea 0 si se prefiere, aquí Domingo es 0
+                
+                let calendarHTML = `
+                    <h3 class="text-lg font-bold dark:text-white capitalize mb-4 text-center">${monthName}</h3>
+                    <div class="grid grid-cols-7 gap-1 text-center mb-2">
+                        <div class="text-xs font-bold text-gray-400">D</div>
+                        <div class="text-xs font-bold text-gray-400">L</div>
+                        <div class="text-xs font-bold text-gray-400">M</div>
+                        <div class="text-xs font-bold text-gray-400">X</div>
+                        <div class="text-xs font-bold text-gray-400">J</div>
+                        <div class="text-xs font-bold text-gray-400">V</div>
+                        <div class="text-xs font-bold text-gray-400">S</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1">
+                `;
+
+                // Espacios vacíos antes del primer día
+                for (let i = 0; i < firstDayIndex; i++) {
+                    calendarHTML += `<div></div>`;
+                }
+
+                // Días
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const currentDate = new Date(now.getFullYear(), now.getMonth(), d);
+                    const isToday = d === now.getDate();
+                    
+                    // Verificar si hay evento este día
+                    const hasEvent = this.data.events.some(e => {
+                        const eDate = new Date(e.date);
+                        return eDate.getDate() === d && eDate.getMonth() === now.getMonth() && eDate.getFullYear() === now.getFullYear();
+                    });
+
+                    let classes = "h-8 w-8 mx-auto flex items-center justify-center rounded-full text-sm transition-colors cursor-default ";
+                    if (isToday) {
+                        classes += "bg-primary text-white font-bold";
+                    } else {
+                        classes += "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+                    }
+
+                    calendarHTML += `
+                        <div class="relative">
+                            <div class="${classes}">${d}</div>
+                            ${hasEvent ? `<span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-secondary rounded-full"></span>` : ''}
                         </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-lg dark:text-white">${evt.title}</h4>
-                            <p class="text-sm text-gray-500">${dateObj.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</p>
-                        </div>
-                        <button onclick="app.deleteEvent(${evt.id})" class="text-gray-400 hover:text-red-500"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
                     `;
-                    list.appendChild(item);
-                });
-                container.appendChild(list);
+                }
+                calendarHTML += `</div>`;
+                calendarSection.innerHTML = calendarHTML;
+                wrapper.appendChild(calendarSection);
+
+                // 2. Lista de Eventos
+                if (this.data.events.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = "flex flex-col items-center justify-center py-10 text-gray-400";
+                    empty.innerHTML = `
+                        <i data-lucide="calendar-clock" class="w-12 h-12 mb-2 opacity-50"></i>
+                        <p>No hay eventos próximos.</p>
+                        <button onclick="app.openModal('agenda')" class="mt-2 text-primary text-sm font-bold hover:underline">Añadir Evento</button>
+                    `;
+                    wrapper.appendChild(empty);
+                } else {
+                    const list = document.createElement('div');
+                    list.className = 'space-y-4';
+                    const sortedEvents = this.data.events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    sortedEvents.forEach(evt => {
+                        const dateObj = new Date(evt.date);
+                        const item = document.createElement('div');
+                        item.className = 'flex items-center bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border-l-4 border-secondary';
+                        item.innerHTML = `
+                            <div class="mr-4 text-center min-w-[60px]">
+                                <div class="text-xs font-bold text-gray-400 uppercase">${dateObj.toLocaleDateString('es-ES', { month: 'short' })}</div>
+                                <div class="text-2xl font-bold text-gray-800 dark:text-white">${dateObj.getDate()}</div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg dark:text-white">${evt.title}</h4>
+                                <p class="text-sm text-gray-500">${dateObj.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})} • ${dateObj.getFullYear()}</p>
+                            </div>
+                            <button onclick="app.deleteEvent(${evt.id})" class="text-gray-400 hover:text-red-500 p-2"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
+                        `;
+                        list.appendChild(item);
+                    });
+                    wrapper.appendChild(list);
+                }
+
+                container.appendChild(wrapper);
+            },
+
+            renderClock(container) {
+                container.innerHTML = `
+                    <div class="max-w-4xl mx-auto space-y-6 pb-20">
+                        
+                        <!-- Reloj Grande -->
+                        <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm p-8 text-center border border-gray-100 dark:border-gray-700">
+                            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Hora Actual</h2>
+                            <div id="clock-display" class="text-5xl md:text-7xl font-mono font-bold text-gray-800 dark:text-white tabular-nums tracking-tight">
+                                --:--:--
+                            </div>
+                            <div id="date-display" class="text-lg text-secondary mt-2 font-medium">--</div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <!-- Cronómetro -->
+                            <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-center">
+                                <div class="flex items-center gap-2 mb-4 text-gray-500 dark:text-gray-400">
+                                    <i data-lucide="timer" class="w-5 h-5"></i>
+                                    <span class="font-bold uppercase text-xs tracking-wider">Cronómetro</span>
+                                </div>
+                                <div id="stopwatch-display" class="text-4xl font-mono font-bold text-gray-800 dark:text-white mb-6 tabular-nums">
+                                    00:00:00
+                                </div>
+                                <div class="flex gap-3 w-full">
+                                    <button onclick="app.toggleStopwatch()" id="btn-sw-toggle" class="flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition">Iniciar</button>
+                                    <button onclick="app.resetStopwatch()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition">
+                                        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Pomodoro -->
+                            <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-center relative overflow-hidden">
+                                ${!this.data.isPremium ? `
+                                    <div class="absolute inset-0 bg-white/60 dark:bg-darkCard/80 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center p-4 text-center">
+                                        <div class="bg-secondary text-white p-3 rounded-full mb-3 shadow-lg">
+                                            <i data-lucide="lock" class="w-6 h-6"></i>
+                                        </div>
+                                        <h3 class="font-bold text-gray-800 dark:text-white">Función Premium</h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Desbloquea el Reloj Pomodoro para maximizar tu enfoque.</p>
+                                        <button onclick="app.navigate('settings')" class="text-primary font-bold hover:underline text-sm">Ir a Ajustes</button>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="flex items-center gap-2 mb-4 text-pomodoro">
+                                    <i data-lucide="hourglass" class="w-5 h-5"></i>
+                                    <span class="font-bold uppercase text-xs tracking-wider">Pomodoro (25m)</span>
+                                </div>
+                                <div id="pomodoro-display" class="text-4xl font-mono font-bold text-gray-800 dark:text-white mb-6 tabular-nums">
+                                    25:00
+                                </div>
+                                <div class="flex gap-3 w-full">
+                                    <button onclick="app.togglePomodoro()" id="btn-pomo-toggle" class="flex-1 bg-pomodoro text-white py-2 rounded-lg font-medium hover:opacity-90 transition">Iniciar</button>
+                                    <button onclick="app.resetPomodoro()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition">
+                                        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+                
+                // Iniciar actualización del reloj
+                this.updateClockUI();
+                const clockInterval = setInterval(() => this.updateClockUI(), 1000);
+                this.activeIntervals.push(clockInterval);
+
+                // Actualizar estado UI de cronómetro/pomodoro si ya estaban corriendo
+                this.updateStopwatchUI();
+                this.updatePomodoroUI();
             },
 
             renderSettings(container) {
                 container.innerHTML = `
-                    <div class="max-w-2xl mx-auto bg-white dark:bg-darkCard rounded-xl shadow p-8">
+                    <div class="max-w-2xl mx-auto bg-white dark:bg-darkCard rounded-xl shadow p-8 pb-20">
                         <h2 class="text-xl font-bold mb-6 dark:text-white">Preferencias</h2>
                         
                         <!-- Tema -->
                         <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-700">
                             <div><p class="font-medium dark:text-white">Modo Oscuro</p><p class="text-sm text-gray-500">Alternar tema de la aplicación</p></div>
-                            <button onclick="app.toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-primary relative transition-colors">
+                            <button onclick="app.toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-primary relative transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:ring-offset-darkCard">
                                 <span class="absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow transform transition-transform ${this.data.settings.theme === 'dark' ? 'translate-x-6' : ''}"></span>
                             </button>
                         </div>
                         
                         <!-- Tamaño de Fuente -->
                         <div class="py-4 border-b border-gray-100 dark:border-gray-700">
-                            <p class="font-medium dark:text-white mb-2">Tamaño de Fuente</p>
+                            <p class="font-medium dark:text-white mb-2">Tamaño de Fuente en Notas</p>
                             <div class="flex gap-4">
-                                <button onclick="app.setFontSize('normal')" class="px-4 py-2 rounded border ${this.data.settings.fontSize === 'normal' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 dark:text-gray-400'}">Normal</button>
-                                <button onclick="app.setFontSize('large')" class="px-4 py-2 rounded border ${this.data.settings.fontSize === 'large' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 dark:text-gray-400'}">Grande</button>
+                                <button onclick="app.setFontSize('normal')" class="px-4 py-2 rounded border transition-colors ${this.data.settings.fontSize === 'normal' ? 'bg-primary text-white border-primary shadow' : 'border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}">Normal</button>
+                                <button onclick="app.setFontSize('large')" class="px-4 py-2 rounded border transition-colors ${this.data.settings.fontSize === 'large' ? 'bg-primary text-white border-primary shadow' : 'border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}">Grande</button>
                             </div>
                         </div>
 
-                        <!-- Estado Premium (Reincorporado) -->
+                        <!-- Estado Premium -->
                         <div class="py-4 border-b border-gray-100 dark:border-gray-700">
-                            <p class="font-medium dark:text-white mb-2">Estado Premium (IA)</p>
+                            <p class="font-medium dark:text-white mb-2">Estado Premium</p>
                             ${this.data.isPremium ? `
-                                <div class="bg-primary/20 dark:bg-primary/40 p-4 rounded-lg flex justify-between items-center text-primary font-medium">
-                                    <i data-lucide="gem" class="w-5 h-5 mr-2"></i>
-                                    Prueba Activa. (Funciones AI deshabilitadas en modo Offline)
+                                <div class="bg-primary/20 dark:bg-primary/40 p-4 rounded-lg flex justify-between items-center text-primary dark:text-blue-200 font-medium">
+                                    <div class="flex items-center">
+                                        <i data-lucide="gem" class="w-5 h-5 mr-2"></i>
+                                        <span>Premium Activo.</span>
+                                    </div>
+                                    <span class="text-xs opacity-75">(Offline)</span>
                                 </div>
                             ` : `
-                                <div class="bg-secondary/10 dark:bg-secondary/30 p-4 rounded-lg flex justify-between items-center text-secondary font-medium">
-                                    <p>Activa tu prueba gratuita de funciones Premium.</p>
-                                    <button onclick="app.activateTrial()" class="bg-primary text-white px-3 py-1 text-sm rounded-lg hover:bg-primary/90 transition">Activar</button>
+                                <div class="bg-secondary/10 dark:bg-secondary/30 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center text-secondary dark:text-blue-300 font-medium gap-3">
+                                    <div>
+                                        <p class="font-bold">Desbloquea funciones extra:</p>
+                                        <ul class="text-sm list-disc list-inside opacity-80">
+                                            <li>Reloj Pomodoro</li>
+                                            <li>Soporte Prioritario (Simulado)</li>
+                                        </ul>
+                                    </div>
+                                    <button onclick="app.activateTrial()" class="bg-primary text-white px-4 py-2 text-sm rounded-lg hover:bg-primary/90 transition shadow whitespace-nowrap">Obtener Premium</button>
                                 </div>
                             `}
                         </div>
@@ -409,11 +634,13 @@
                         <div class="py-4">
                             <p class="font-medium dark:text-white mb-2">Estado de Conexión</p>
                             <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg flex justify-between items-center text-green-600 dark:text-green-300 font-medium">
-                                <i data-lucide="cloud-off" class="w-5 h-5 mr-2"></i>
-                                Aplicación 100% Offline
+                                <div class="flex items-center">
+                                    <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                                    Aplicación 100% Offline
+                                </div>
                             </div>
                         </div>
-                        <div class="mt-8 text-center text-xs text-gray-400">Datos guardados localmente en su navegador.</div>
+                        <div class="mt-8 text-center text-xs text-gray-400">Datos guardados localmente en su navegador (LocalStorage).</div>
                     </div>
                 `;
             },
@@ -439,16 +666,32 @@
             },
 
             deleteNote(id) {
-                // Usamos un modal UI simple en lugar de confirm()
-                const confirmed = prompt('Escribe "BORRAR" para confirmar que quieres eliminar la nota.').toUpperCase() === 'BORRAR';
-                if(confirmed) {
+                this.pendingDelete = { type: 'note', id: id };
+                this.openModal('confirm');
+            },
+            
+            deleteEvent(id) {
+                this.pendingDelete = { type: 'event', id: id };
+                this.openModal('confirm');
+            },
+
+            executeDelete() {
+                if (!this.pendingDelete) return;
+                
+                const { type, id } = this.pendingDelete;
+                
+                if (type === 'note') {
                     this.data.notes = this.data.notes.filter(n => n.id !== id);
-                    this.saveToStorage();
                     this.showToast('Nota eliminada', 'success');
-                    this.render();
-                } else {
-                    this.showToast('Operación cancelada', 'info');
+                } else if (type === 'event') {
+                    this.data.events = this.data.events.filter(e => e.id !== id);
+                    this.showToast('Evento eliminado', 'success');
                 }
+                
+                this.saveToStorage();
+                this.render();
+                this.closeModal('confirm');
+                this.pendingDelete = null;
             },
             
             saveEvent() {
@@ -458,28 +701,127 @@
                 this.data.events.push({ id: Date.now(), title, date });
                 this.saveToStorage();
                 this.closeModal('agenda');
+                // Limpiar campos
+                document.getElementById('event-title').value = '';
+                document.getElementById('event-date').value = '';
+                
                 this.showToast('Evento agendado', 'success');
                 this.navigate('agenda');
             },
 
-            deleteEvent(id) {
-                const confirmed = prompt('Escribe "BORRAR" para confirmar que quieres eliminar el evento.').toUpperCase() === 'BORRAR';
-                if(confirmed) {
-                    this.data.events = this.data.events.filter(e => e.id !== id);
-                    this.saveToStorage();
-                    this.showToast('Evento eliminado', 'success');
-                    this.render();
-                } else {
-                    this.showToast('Operación cancelada', 'info');
-                }
+            // --- FUNCIONES RELOJ / CRONOMETRO ---
+            updateClockUI() {
+                const clockDisplay = document.getElementById('clock-display');
+                const dateDisplay = document.getElementById('date-display');
+                if(!clockDisplay) return;
+
+                const now = new Date();
+                // Formato HH:MM:SS con parpadeo
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                
+                clockDisplay.innerHTML = `${hours}<span class="colon-blink">:</span>${minutes}<span class="colon-blink">:</span>${seconds}`;
+                dateDisplay.innerText = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
+
+            toggleStopwatch() {
+                const sw = this.clockState.stopwatch;
+                if (sw.running) {
+                    clearInterval(sw.interval);
+                    sw.running = false;
+                } else {
+                    const startTime = Date.now() - sw.time;
+                    sw.interval = setInterval(() => {
+                        sw.time = Date.now() - startTime;
+                        this.updateStopwatchUI();
+                    }, 100); // 100ms para décimas
+                    sw.running = true;
+                    this.activeIntervals.push(sw.interval); // Para limpiar al salir
+                }
+                this.updateStopwatchUI();
+            },
+
+            resetStopwatch() {
+                const sw = this.clockState.stopwatch;
+                clearInterval(sw.interval);
+                sw.running = false;
+                sw.time = 0;
+                this.updateStopwatchUI();
+            },
+
+            updateStopwatchUI() {
+                const display = document.getElementById('stopwatch-display');
+                const btn = document.getElementById('btn-sw-toggle');
+                if(!display) return;
+
+                const sw = this.clockState.stopwatch;
+                const time = new Date(sw.time);
+                const m = String(time.getUTCMinutes()).padStart(2, '0');
+                const s = String(time.getUTCSeconds()).padStart(2, '0');
+                const ms = String(Math.floor(time.getUTCMilliseconds() / 10)).padStart(2, '0');
+
+                display.innerText = `${m}:${s}:${ms}`;
+                btn.innerText = sw.running ? 'Pausar' : 'Iniciar';
+                btn.className = sw.running 
+                    ? 'flex-1 bg-yellow-500 text-white py-2 rounded-lg font-medium hover:bg-yellow-600 transition'
+                    : 'flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition';
+            },
+
+            togglePomodoro() {
+                if(!this.data.isPremium) return;
+                const pomo = this.clockState.pomodoro;
+                
+                if (pomo.running) {
+                    clearInterval(pomo.interval);
+                    pomo.running = false;
+                } else {
+                    pomo.interval = setInterval(() => {
+                        if (pomo.time > 0) {
+                            pomo.time--;
+                            this.updatePomodoroUI();
+                        } else {
+                            // Terminado
+                            clearInterval(pomo.interval);
+                            pomo.running = false;
+                            this.showToast('¡Tiempo Pomodoro completado!', 'success');
+                            this.updatePomodoroUI();
+                            // Sonido o alerta visual simple
+                        }
+                    }, 1000);
+                    pomo.running = true;
+                    this.activeIntervals.push(pomo.interval);
+                }
+                this.updatePomodoroUI();
+            },
+
+            resetPomodoro() {
+                const pomo = this.clockState.pomodoro;
+                clearInterval(pomo.interval);
+                pomo.running = false;
+                pomo.time = pomo.initial;
+                this.updatePomodoroUI();
+            },
+
+            updatePomodoroUI() {
+                const display = document.getElementById('pomodoro-display');
+                const btn = document.getElementById('btn-pomo-toggle');
+                if(!display) return;
+
+                const pomo = this.clockState.pomodoro;
+                const m = String(Math.floor(pomo.time / 60)).padStart(2, '0');
+                const s = String(pomo.time % 60).padStart(2, '0');
+
+                display.innerText = `${m}:${s}`;
+                btn.innerText = pomo.running ? 'Pausar' : 'Iniciar';
+            },
+
 
             // --- SYSTEM ---
             toggleCalculator() {
                 document.getElementById('modal-calculator').classList.toggle('hidden');
-                // Se asegura de que la calculadora esté visible para su uso
                 if (!document.getElementById('modal-calculator').classList.contains('hidden')) {
-                    calc.update(); // Muestra el valor actual al abrir
+                    calc.update(); 
                 }
             },
             toggleTheme() {
@@ -508,15 +850,18 @@
             activateTrial() {
                 this.data.isPremium = true;
                 localStorage.setItem('isPremium', 'true');
-                this.showToast('¡Prueba Premium activada! (Funciones de IA deshabilitadas en modo Offline)', 'success');
-                this.render(); // Re-render settings view
+                this.showToast('¡Premium activado! Disfruta del Pomodoro.', 'success');
+                this.render(); 
             },
             saveToStorage() {
                 localStorage.setItem('notes', JSON.stringify(this.data.notes));
                 localStorage.setItem('events', JSON.stringify(this.data.events));
             },
             openModal(type) { document.getElementById(`modal-${type}`).classList.remove('hidden'); },
-            closeModal(type) { document.getElementById(`modal-${type}`).classList.add('hidden'); }
+            closeModal(type) { 
+                document.getElementById(`modal-${type}`).classList.add('hidden'); 
+                if(type === 'confirm') this.pendingDelete = null;
+            }
         };
 
         app.init();
