@@ -42,6 +42,10 @@
             50% { opacity: 0.5; }
         }
         .colon-blink { animation: pulse-soft 1s infinite; }
+
+        /* Clase para el cursor de la calculadora */
+        .cursor-grab { cursor: grab; }
+        .cursor-grabbing { cursor: grabbing; }
     </style>
 </head>
 <body class="bg-[#EDEDED] text-gray-800 dark:bg-darkBg dark:text-gray-100 font-sans h-screen flex overflow-hidden">
@@ -49,9 +53,9 @@
     <!-- SIDEBAR -->
     <aside class="w-16 md:w-64 bg-white dark:bg-darkCard border-r border-gray-200 dark:border-gray-700 flex flex-col justify-between transition-all duration-300 z-20 shrink-0">
         <div>
-            <!-- LOGO AREA MODIFICADA -->
+            <!-- LOGO AREA -->
             <div class="h-20 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-200 dark:border-gray-700">
-                <!-- SVG Custom Logo basado en la imagen subida -->
+                <!-- SVG Custom Logo -->
                 <svg class="w-10 h-10 shrink-0 rounded-xl shadow-sm transition-transform hover:scale-105" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="logoGradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
@@ -59,15 +63,12 @@
                             <stop offset="1" stop-color="#2D3A4F"/>
                         </linearGradient>
                     </defs>
-                    <!-- Fondo Azul redondeado -->
                     <rect width="100" height="100" rx="25" fill="url(#logoGradient)"/>
-                    <!-- Forma circular blanca (Abstracta) -->
                     <circle cx="50" cy="45" r="25" stroke="white" stroke-width="8"/>
                     <path d="M25 75 Q 50 85 75 75" stroke="white" stroke-width="0" fill="white" /> 
                     <ellipse cx="50" cy="78" rx="28" ry="8" fill="white" />
                 </svg>
                 
-                <!-- Nombre de la App: StudyFlow -->
                 <span class="hidden md:block ml-3 font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">StudyFlow</span>
             </div>
 
@@ -80,7 +81,6 @@
                     <i data-lucide="calendar" class="w-6 h-6"></i>
                     <span class="hidden md:block ml-3 font-medium">Agenda</span>
                 </button>
-                <!-- Nueva Sección Reloj -->
                 <button onclick="app.navigate('clock')" id="nav-clock" class="flex items-center justify-center md:justify-start p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                     <i data-lucide="clock" class="w-6 h-6"></i>
                     <span class="hidden md:block ml-3 font-medium">Reloj & Foco</span>
@@ -90,7 +90,6 @@
                     <span class="hidden md:block ml-3 font-medium">Ajustes</span>
                 </button>
                 
-                <!-- La calculadora ahora está siempre disponible -->
                 <button onclick="app.toggleCalculator()" class="flex items-center justify-center md:justify-start p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors mt-4 relative group">
                     <i data-lucide="calculator" class="w-6 h-6 text-secondary"></i>
                     <span class="hidden md:block ml-3 font-medium">Calculadora</span>
@@ -117,7 +116,6 @@
                 <button onclick="app.toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                     <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
                 </button>
-                <!-- El botón Nuevo es dinámico según la vista -->
                 <button id="btn-new-main" onclick="app.handleNewButton()" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md transition-transform active:scale-95">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Nuevo</span>
@@ -143,7 +141,7 @@
     <div id="modal-note" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-2xl shadow-2xl p-6 transform transition-all scale-100 flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold dark:text-white">Nueva Nota</h3>
+                <h3 id="modal-note-title" class="text-xl font-bold dark:text-white">Nueva Nota</h3>
                 <button onclick="app.closeModal('note')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
@@ -172,10 +170,11 @@
         </div>
     </div>
 
-    <!-- Modal Calculadora -->
-    <div id="modal-calculator" class="fixed bottom-20 right-4 sm:bottom-10 sm:right-10 bg-white dark:bg-darkCard rounded-2xl shadow-2xl z-40 hidden w-64 overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div class="bg-gray-100 dark:bg-gray-800 p-3 flex justify-between items-center cursor-move select-none" id="calc-header">
-            <span class="font-bold text-sm dark:text-white flex items-center gap-2"><i data-lucide="calculator" class="w-3 h-3"></i> Calculadora</span>
+    <!-- Modal Calculadora Movible -->
+    <!-- Se agrega estilo 'cursor-grab' al header para indicar movible -->
+    <div id="modal-calculator" class="fixed bottom-20 right-4 sm:bottom-10 sm:right-10 bg-white dark:bg-darkCard rounded-2xl shadow-2xl z-40 hidden w-64 overflow-hidden border border-gray-200 dark:border-gray-700 transition-opacity">
+        <div class="bg-gray-100 dark:bg-gray-800 p-3 flex justify-between items-center cursor-grab select-none active:cursor-grabbing" id="calc-header">
+            <span class="font-bold text-sm dark:text-white flex items-center gap-2 pointer-events-none"><i data-lucide="calculator" class="w-3 h-3"></i> Calculadora</span>
             <button onclick="app.toggleCalculator()" class="text-red-500 hover:bg-red-100 rounded p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
         <div class="p-4">
@@ -221,9 +220,53 @@
     <script>
         lucide.createIcons();
 
-        // ------------------ CALCULADORA LÓGICA ------------------
+        // ------------------ CALCULADORA LÓGICA & DRAG ------------------
         const calc = {
             current: '0', prev: null, operation: null,
+            isDragging: false,
+            startX: 0, startY: 0,
+            initialLeft: 0, initialTop: 0,
+
+            initDrag() {
+                const header = document.getElementById('calc-header');
+                const modal = document.getElementById('modal-calculator');
+
+                header.addEventListener('mousedown', (e) => {
+                    // Evitar drag si se clickea el boton cerrar
+                    if(e.target.closest('button')) return;
+                    
+                    this.isDragging = true;
+                    this.startX = e.clientX;
+                    this.startY = e.clientY;
+                    
+                    const rect = modal.getBoundingClientRect();
+                    this.initialLeft = rect.left;
+                    this.initialTop = rect.top;
+                    
+                    // Remover clases de posicionamiento fijo para permitir movimiento libre
+                    modal.style.bottom = 'auto';
+                    modal.style.right = 'auto';
+                    modal.style.left = `${this.initialLeft}px`;
+                    modal.style.top = `${this.initialTop}px`;
+                    
+                    header.classList.add('cursor-grabbing');
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!this.isDragging) return;
+                    e.preventDefault();
+                    const dx = e.clientX - this.startX;
+                    const dy = e.clientY - this.startY;
+                    modal.style.left = `${this.initialLeft + dx}px`;
+                    modal.style.top = `${this.initialTop + dy}px`;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                    header.classList.remove('cursor-grabbing');
+                });
+            },
+
             add(n) { 
                 if (this.current === '0' && n !== '.') this.current = ''; 
                 this.current += n.toString(); 
@@ -278,9 +321,9 @@
             },
             currentView: 'notes',
             pendingDelete: null,
-            activeIntervals: [], // Para limpiar intervalos al cambiar de vista
+            activeIntervals: [], 
+            currentNoteId: null, // Para edición de notas
             
-            // Estado para el Cronómetro y Pomodoro (en memoria, se resetea al recargar página)
             clockState: {
                 stopwatch: { time: 0, running: false, interval: null },
                 pomodoro: { time: 25 * 60, running: false, interval: null, initial: 25 * 60 }
@@ -289,6 +332,7 @@
             init() {
                 this.applyTheme();
                 this.render();
+                calc.initDrag(); // Iniciar lógica de arrastre
             },
 
             // --- UI HELPERS ---
@@ -328,9 +372,8 @@
 
             navigate(view) {
                 this.currentView = view;
-                this.clearIntervals(); // Limpiar intervalos de la vista anterior (ej. reloj)
+                this.clearIntervals(); 
                 
-                // Actualiza la barra lateral
                 document.querySelectorAll('nav button').forEach(btn => {
                     if(btn.id.startsWith('nav-')) {
                         btn.classList.remove('bg-primary/10', 'text-primary', 'dark:bg-primary/20', 'dark:text-white');
@@ -347,7 +390,6 @@
                 const titles = { notes: 'Mis Notas', agenda: 'Agenda Personal', settings: 'Ajustes', clock: 'Reloj & Foco' };
                 document.getElementById('page-title').innerText = titles[view];
                 
-                // Manejo del botón "Nuevo"
                 const btnNew = document.getElementById('btn-new-main');
                 if (view === 'settings' || view === 'clock') {
                     btnNew.classList.add('hidden');
@@ -359,7 +401,7 @@
             },
             
             handleNewButton() {
-                if(this.currentView === 'notes') this.openModal('note');
+                if(this.currentView === 'notes') this.openNoteModal(); 
                 if(this.currentView === 'agenda') this.openModal('agenda');
             },
 
@@ -392,16 +434,23 @@
                 sortedNotes.forEach((note) => {
                     const fontSizeClass = this.data.settings.fontSize === 'large' ? 'text-lg' : 'text-base';
                     const card = document.createElement('div');
-                    card.className = `note-card bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden group h-64`;
+                    // Se agrega onclick para abrir el editor
+                    card.className = `note-card bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden group h-64 cursor-pointer hover:border-primary/50 transition-colors`;
+                    card.onclick = (e) => {
+                        // Evitar que el clic en el botón de borrar dispare la edición
+                        if(e.target.closest('.delete-btn')) return;
+                        this.openNoteModal(note.id);
+                    };
+
                     card.innerHTML = `
                         <h3 class="font-bold text-lg mb-2 dark:text-gray-100 line-clamp-1">${note.title}</h3>
-                        <div class="flex-1 overflow-hidden relative">
+                        <div class="flex-1 overflow-hidden relative pointer-events-none">
                             <p class="${fontSizeClass} text-gray-600 dark:text-gray-400 whitespace-pre-line line-clamp-6 mb-4">${note.body}</p>
                             <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white dark:from-darkCard to-transparent"></div>
                         </div>
                         <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
                             <span class="text-xs text-gray-400">${new Date(note.date).toLocaleDateString()}</span>
-                            <button onclick="app.deleteNote(${note.id})" class="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="app.deleteNote(${note.id})" class="delete-btn text-red-400 hover:text-red-600 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors z-10"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -421,7 +470,6 @@
                 const monthName = now.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
                 const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
                 const firstDayIndex = new Date(now.getFullYear(), now.getMonth(), 1).getDay(); // 0 = Domingo
-                // Ajustar para que Lunes sea 0 si se prefiere, aquí Domingo es 0
                 
                 let calendarHTML = `
                     <h3 class="text-lg font-bold dark:text-white capitalize mb-4 text-center">${monthName}</h3>
@@ -437,31 +485,36 @@
                     <div class="grid grid-cols-7 gap-1">
                 `;
 
-                // Espacios vacíos antes del primer día
                 for (let i = 0; i < firstDayIndex; i++) {
                     calendarHTML += `<div></div>`;
                 }
 
-                // Días
                 for (let d = 1; d <= daysInMonth; d++) {
                     const currentDate = new Date(now.getFullYear(), now.getMonth(), d);
+                    // Formato YYYY-MM-DD para el input type="datetime-local"
+                    // Ajuste de zona horaria simple
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(d).padStart(2, '0');
+                    const dateString = `${year}-${month}-${day}T09:00`; // Hora por defecto 9am
+
                     const isToday = d === now.getDate();
                     
-                    // Verificar si hay evento este día
                     const hasEvent = this.data.events.some(e => {
                         const eDate = new Date(e.date);
                         return eDate.getDate() === d && eDate.getMonth() === now.getMonth() && eDate.getFullYear() === now.getFullYear();
                     });
 
-                    let classes = "h-8 w-8 mx-auto flex items-center justify-center rounded-full text-sm transition-colors cursor-default ";
+                    let classes = "h-8 w-8 mx-auto flex items-center justify-center rounded-full text-sm transition-colors cursor-pointer ";
                     if (isToday) {
-                        classes += "bg-primary text-white font-bold";
+                        classes += "bg-primary text-white font-bold hover:opacity-80";
                     } else {
                         classes += "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
                     }
 
+                    // Se agrega el evento onclick para abrir modal con fecha
                     calendarHTML += `
-                        <div class="relative">
+                        <div class="relative" onclick="app.openModalWithDate('${dateString}')">
                             <div class="${classes}">${d}</div>
                             ${hasEvent ? `<span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-secondary rounded-full"></span>` : ''}
                         </div>
@@ -512,7 +565,6 @@
             renderClock(container) {
                 container.innerHTML = `
                     <div class="max-w-4xl mx-auto space-y-6 pb-20">
-                        
                         <!-- Reloj Grande -->
                         <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm p-8 text-center border border-gray-100 dark:border-gray-700">
                             <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Hora Actual</h2>
@@ -523,7 +575,6 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            
                             <!-- Cronómetro -->
                             <div class="bg-white dark:bg-darkCard rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-center">
                                 <div class="flex items-center gap-2 mb-4 text-gray-500 dark:text-gray-400">
@@ -568,17 +619,14 @@
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 `;
                 
-                // Iniciar actualización del reloj
                 this.updateClockUI();
                 const clockInterval = setInterval(() => this.updateClockUI(), 1000);
                 this.activeIntervals.push(clockInterval);
 
-                // Actualizar estado UI de cronómetro/pomodoro si ya estaban corriendo
                 this.updateStopwatchUI();
                 this.updatePomodoroUI();
             },
@@ -646,6 +694,28 @@
             },
 
             // --- DATA LOGIC ---
+            // Modificación: Soporte para editar
+            openNoteModal(id = null) {
+                this.currentNoteId = id;
+                const modalTitle = document.getElementById('modal-note-title');
+                const titleInput = document.getElementById('note-title');
+                const bodyInput = document.getElementById('note-body');
+
+                if (id) {
+                    const note = this.data.notes.find(n => n.id === id);
+                    if (note) {
+                        modalTitle.innerText = "Editar Nota";
+                        titleInput.value = note.title;
+                        bodyInput.value = note.body;
+                    }
+                } else {
+                    modalTitle.innerText = "Nueva Nota";
+                    titleInput.value = '';
+                    bodyInput.value = '';
+                }
+                this.openModal('note');
+            },
+
             saveNote() {
                 const title = document.getElementById('note-title').value;
                 const body = document.getElementById('note-body').value;
@@ -655,14 +725,26 @@
                     return;
                 }
 
-                const newNote = { id: Date.now(), title: title || 'Sin Título', body: body, date: new Date() };
-                this.data.notes.push(newNote);
+                if (this.currentNoteId) {
+                    // Editar existente
+                    const index = this.data.notes.findIndex(n => n.id === this.currentNoteId);
+                    if (index !== -1) {
+                        this.data.notes[index].title = title || 'Sin Título';
+                        this.data.notes[index].body = body;
+                        this.data.notes[index].date = new Date(); // Actualizar fecha
+                        this.showToast('Nota actualizada', 'success');
+                    }
+                } else {
+                    // Crear nueva
+                    const newNote = { id: Date.now(), title: title || 'Sin Título', body: body, date: new Date() };
+                    this.data.notes.push(newNote);
+                    this.showToast('Nota creada', 'success');
+                }
+
                 this.saveToStorage();
                 this.closeModal('note');
-                document.getElementById('note-title').value = '';
-                document.getElementById('note-body').value = '';
-                this.showToast('Nota guardada con éxito', 'success');
                 this.render();
+                this.currentNoteId = null; // Reset
             },
 
             deleteNote(id) {
@@ -694,6 +776,12 @@
                 this.pendingDelete = null;
             },
             
+            // Nueva función para abrir modal desde calendario
+            openModalWithDate(dateString) {
+                document.getElementById('event-date').value = dateString;
+                this.openModal('agenda');
+            },
+            
             saveEvent() {
                 const title = document.getElementById('event-title').value;
                 const date = document.getElementById('event-date').value;
@@ -716,7 +804,6 @@
                 if(!clockDisplay) return;
 
                 const now = new Date();
-                // Formato HH:MM:SS con parpadeo
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -735,9 +822,9 @@
                     sw.interval = setInterval(() => {
                         sw.time = Date.now() - startTime;
                         this.updateStopwatchUI();
-                    }, 100); // 100ms para décimas
+                    }, 100); 
                     sw.running = true;
-                    this.activeIntervals.push(sw.interval); // Para limpiar al salir
+                    this.activeIntervals.push(sw.interval); 
                 }
                 this.updateStopwatchUI();
             },
@@ -781,12 +868,10 @@
                             pomo.time--;
                             this.updatePomodoroUI();
                         } else {
-                            // Terminado
                             clearInterval(pomo.interval);
                             pomo.running = false;
                             this.showToast('¡Tiempo Pomodoro completado!', 'success');
                             this.updatePomodoroUI();
-                            // Sonido o alerta visual simple
                         }
                     }, 1000);
                     pomo.running = true;
@@ -816,11 +901,11 @@
                 btn.innerText = pomo.running ? 'Pausar' : 'Iniciar';
             },
 
-
             // --- SYSTEM ---
             toggleCalculator() {
                 document.getElementById('modal-calculator').classList.toggle('hidden');
                 if (!document.getElementById('modal-calculator').classList.contains('hidden')) {
+                    // Resetear posición si es necesario o mantenerla
                     calc.update(); 
                 }
             },
@@ -861,6 +946,8 @@
             closeModal(type) { 
                 document.getElementById(`modal-${type}`).classList.add('hidden'); 
                 if(type === 'confirm') this.pendingDelete = null;
+                // Reset de nota actual al cerrar si era nota
+                if(type === 'note') this.currentNoteId = null;
             }
         };
 
